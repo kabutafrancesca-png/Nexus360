@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Customers</h1>
+<div class="card">
+  <table class="table">
+    <thead><tr><th>Company</th><th>Vertical</th><th>Tier</th><th>Region</th><th>Status</th><th>Health</th></tr></thead>
+    <tbody>
+    {% for a in accounts %}
+      <tr>
+        <td><a href="{{ url_for('cims.account_detail', account_id=a.id) }}">{{ a.company_name }}</a></td>
+        <td>{{ a.vertical }}</td><td>{{ a.tier }}</td><td>{{ a.region }}</td>
+        <td><span class="badge {{ a.status }}">{{ a.status }}</span></td><td>{{ a.health_score }}</td>
+      </tr>
+    {% else %}<tr><td colspan="6">No accounts yet. Run db/seed.sql.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

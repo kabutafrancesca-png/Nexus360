@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title or 'Nexus 360' }} | Infratel Nexus 360</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+{% block head %}{% endblock %}
+</head><body>
+<aside class="sidebar">
+  <div class="brand">Nexus 360</div>
+  <nav>
+    <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+    <a href="{{ url_for('cims.index') }}">Customers (CIMS)</a>
+    <a href="{{ url_for('pipeline.index') }}">Pipeline</a>
+    <a href="{{ url_for('journey.index') }}">Journey Tracker</a>
+    <a href="{{ url_for('vsi.index') }}">VSI &amp; ABM</a>
+    <a href="{{ url_for('crosssell.index') }}">Cross-Sell</a>
+    <a href="{{ url_for('contracts.index') }}">Contracts</a>
+    <a href="{{ url_for('integrations.index') }}">Integrations</a>
+  </nav>
+  <div class="user">{{ session.get('full_name') }}<br><a href="{{ url_for('auth.logout') }}">Logout</a></div>
+</aside>
+<main class="content">{% block content %}{% endblock %}</main>
+<script src="{{ url_for('static', filename='js/api.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body></html>

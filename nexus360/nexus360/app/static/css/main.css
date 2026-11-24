@@ -1,0 +1,22 @@
+:root { --brand:#0b3d91; --accent:#e63946; --bg:#f4f6fa; --text:#1d2433; --card:#fff; }
+* { box-sizing: border-box; }
+body { margin:0; font-family: system-ui, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; }
+body.public { display:grid; place-items:center; width:100%; }
+.sidebar { width:230px; background:var(--brand); color:#fff; padding:20px 0; display:flex; flex-direction:column; }
+.sidebar .brand { font-size:1.3rem; font-weight:700; padding:0 20px 20px; }
+.sidebar nav { flex:1; display:flex; flex-direction:column; }
+.sidebar a { color:#cfd9f2; text-decoration:none; padding:10px 20px; }
+.sidebar a:hover { background:rgba(255,255,255,.12); color:#fff; }
+.sidebar .user { padding:16px 20px; font-size:.85rem; }
+.content { flex:1; padding:28px; }
+.card { background:var(--card); border-radius:10px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,.08); margin-bottom:16px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+.table { width:100%; border-collapse:collapse; }
+.table th, .table td { text-align:left; padding:10px; border-bottom:1px solid #e5e8ef; }
+.btn { background:var(--brand); color:#fff; border:0; padding:10px 16px; border-radius:6px; cursor:pointer; }
+.badge { padding:2px 8px; border-radius:12px; background:#e5e8ef; font-size:.8rem; }
+.badge.active { background:#d4f4dd; } .badge.at_risk { background:#fde2e2; }
+.badge.bronze{background:#e8cba7}.badge.silver{background:#dfe3e8}.badge.gold{background:#fbe8a6}.badge.platinum{background:#cfe8ff}
+.login { width:340px; display:flex; flex-direction:column; gap:12px; }
+.login input { padding:10px; border:1px solid #ccd; border-radius:6px; }
+.error { color:var(--accent); }
