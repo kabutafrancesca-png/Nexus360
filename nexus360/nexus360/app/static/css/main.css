@@ -1,22 +1,269 @@
-:root { --brand:#0b3d91; --accent:#e63946; --bg:#f4f6fa; --text:#1d2433; --card:#fff; }
+/* ============================================================
+   Nexus 360 — Infratel brand design system
+   Colors sourced from infratel.co.zm and the Infratel logo.
+   ============================================================ */
+
+:root {
+  /* --- Brand palette --- */
+  --brand:        #1a2b5e;   /* Infratel navy — sidebar, primary buttons */
+  --brand-mid:    #1e3570;   /* slightly lighter navy for hover states    */
+  --accent:       #e8192c;   /* Infratel red  — signal arcs, alerts       */
+  --accent-hover: #c8101f;   /* darker red for button hover               */
+  --cyan:         #00b4d8;   /* signal-wave cyan — highlights, links      */
+
+  /* --- Surface palette --- */
+  --bg:           #f0f3f9;   /* page background                           */
+  --card:         #ffffff;
+  --border:       #dde2ee;
+  --text:         #1d2433;
+  --text-muted:   #6b7490;
+  --sidebar-link: #a8bce8;   /* nav link default on dark sidebar          */
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
 * { box-sizing: border-box; }
-body { margin:0; font-family: system-ui, Segoe UI, Roboto, sans-serif; background:var(--bg); color:var(--text); display:flex; min-height:100vh; }
-body.public { display:grid; place-items:center; width:100%; }
-.sidebar { width:230px; background:var(--brand); color:#fff; padding:20px 0; display:flex; flex-direction:column; }
-.sidebar .brand { font-size:1.3rem; font-weight:700; padding:0 20px 20px; }
-.sidebar nav { flex:1; display:flex; flex-direction:column; }
-.sidebar a { color:#cfd9f2; text-decoration:none; padding:10px 20px; }
-.sidebar a:hover { background:rgba(255,255,255,.12); color:#fff; }
-.sidebar .user { padding:16px 20px; font-size:.85rem; }
-.content { flex:1; padding:28px; }
-.card { background:var(--card); border-radius:10px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,.08); margin-bottom:16px; }
-.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
-.table { width:100%; border-collapse:collapse; }
-.table th, .table td { text-align:left; padding:10px; border-bottom:1px solid #e5e8ef; }
-.btn { background:var(--brand); color:#fff; border:0; padding:10px 16px; border-radius:6px; cursor:pointer; }
-.badge { padding:2px 8px; border-radius:12px; background:#e5e8ef; font-size:.8rem; }
-.badge.active { background:#d4f4dd; } .badge.at_risk { background:#fde2e2; }
-.badge.bronze{background:#e8cba7}.badge.silver{background:#dfe3e8}.badge.gold{background:#fbe8a6}.badge.platinum{background:#cfe8ff}
-.login { width:340px; display:flex; flex-direction:column; gap:12px; }
-.login input { padding:10px; border:1px solid #ccd; border-radius:6px; }
-.error { color:var(--accent); }
+
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+}
+
+body.public {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  background: var(--bg);
+}
+
+/* ── Sidebar ────────────────────────────────────────────── */
+.sidebar {
+  width: 240px;
+  background: var(--brand);
+  color: #fff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+/* Logo area at the top of the sidebar */
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  text-decoration: none;
+}
+
+.sidebar .brand img {
+  width: 110px;        /* controls logo width inside sidebar */
+  height: auto;
+  /* invert makes the dark navy parts white so they show on the navy sidebar */
+  filter: brightness(0) invert(1);
+}
+
+/* system name below the logo */
+.sidebar .brand-label {
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.60);
+  padding: 6px 20px 10px;
+}
+
+.sidebar nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 4px;
+}
+
+.sidebar nav a {
+  color: var(--sidebar-link);
+  text-decoration: none;
+  padding: 10px 20px;
+  font-size: .92rem;
+  border-left: 3px solid transparent;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+  background: rgba(255,255,255,.10);
+  color: #fff;
+  border-left-color: var(--accent);
+}
+
+/* accent stripe on active link */
+.sidebar nav a.active {
+  border-left-color: var(--cyan);
+}
+
+.sidebar .user {
+  padding: 14px 20px;
+  font-size: .82rem;
+  color: var(--sidebar-link);
+  border-top: 1px solid rgba(255,255,255,.10);
+}
+
+.sidebar .user a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.sidebar .user a:hover {
+  color: var(--accent-hover);
+}
+
+/* ── Main content area ──────────────────────────────────── */
+.content {
+  flex: 1;
+  padding: 28px 32px;
+  overflow-y: auto;
+}
+
+/* ── Cards ──────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.07);
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+}
+
+/* ── Grid ───────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── Tables ─────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 2px solid var(--border);
+}
+
+.table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table tbody tr:hover {
+  background: #f5f7fc;
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .9rem;
+  font-weight: 600;
+  transition: background .15s;
+}
+
+.btn:hover { background: var(--brand-mid); }
+
+.btn-danger {
+  background: var(--accent);
+}
+.btn-danger:hover { background: var(--accent-hover); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--brand);
+  border: 1.5px solid var(--brand);
+}
+.btn-outline:hover {
+  background: var(--brand);
+  color: #fff;
+}
+
+/* ── Badges ─────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 12px;
+  background: #e5e8ef;
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+.badge.active     { background: #d4f4dd; color: #1a6632; }
+.badge.at_risk    { background: #fde2e2; color: #9b1c1c; }
+.badge.bronze     { background: #f0dfc0; color: #7a5420; }
+.badge.silver     { background: #dfe3e8; color: #3d454f; }
+.badge.gold       { background: #fbe8a6; color: #7a5a00; }
+.badge.platinum   { background: #cfe8ff; color: #1a4d80; }
+
+/* ── Login page ─────────────────────────────────────────── */
+.login-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.login-logo {
+  width: 160px;
+  height: auto;
+}
+
+.login {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login h2 {
+  margin: 0 0 4px;
+  font-size: 1.15rem;
+  color: var(--brand);
+}
+
+.login input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: .95rem;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.login input:focus {
+  border-color: var(--brand);
+}
+
+/* ── Utility ────────────────────────────────────────────── */
+.error { color: var(--accent); font-size: .9rem; }
+
+h1, h2, h3 { color: var(--brand); }
+
+a { color: var(--cyan); }
+a:hover { color: var(--brand); }
