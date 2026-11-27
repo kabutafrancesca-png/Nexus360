@@ -1,0 +1,254 @@
+/* CRM & Pipeline module styles (Infratel Nexus 360) */
+.p3-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.p3-header h1 { margin: 0 0 4px; }
+.p3-subtitle { margin: 0; color: var(--text-muted); font-size: .92rem; }
+.p3-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-sm { padding: 6px 12px; font-size: .82rem; }
+
+.p3-toast {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  font-size: .9rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: #eaf4ff;
+  color: var(--brand);
+}
+.p3-toast.error { background: #fde2e2; color: #9b1c1c; border-color: #f5bcbc; }
+.p3-toast.success { background: #d4f4dd; color: #1a6632; border-color: #a9e2b9; }
+.hidden { display: none !important; }
+
+.p3-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.p3-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 0;
+  border-left: 4px solid var(--brand);
+}
+.p3-kpi-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); font-weight: 600; }
+.p3-kpi-val { font-size: 1.55rem; color: var(--brand); }
+.p3-kpi-warn { color: var(--accent); }
+.p3-kpi-sub { font-size: .82rem; color: var(--text-muted); }
+
+.p3-tabs {
+  display: flex;
+  gap: 6px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 16px;
+}
+.p3-tab {
+  background: transparent;
+  border: 0;
+  padding: 10px 16px;
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+.p3-tab.active {
+  color: var(--brand);
+  border-bottom-color: var(--accent);
+}
+.p3-tab-panel { display: none; }
+.p3-tab-panel.active { display: block; }
+
+.p3-toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 12px 16px;
+}
+.p3-toolbar input, .p3-toolbar select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: .88rem;
+  background: #fff;
+}
+.p3-toolbar input[type="search"] { flex: 1; min-width: 200px; }
+
+/* Kanban Board */
+.kanban-scroll {
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(230px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.kanban-col {
+  background: #e9eef7;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: background .15s, border-color .15s;
+}
+.kanban-col.drag-over {
+  background: #dce8fb;
+  border-color: var(--cyan);
+}
+.kanban-col-head {
+  padding: 4px 4px 8px;
+  border-bottom: 2px solid var(--border);
+}
+.kanban-col-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: .86rem;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.kanban-col-totals {
+  font-size: .78rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+.kanban-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.kanban-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 11px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  cursor: grab;
+  transition: transform .1s, box-shadow .15s;
+}
+.kanban-card:hover {
+  box-shadow: 0 3px 10px rgba(26,43,94,.12);
+  border-color: var(--cyan);
+}
+.kanban-card.dragging { opacity: .5; }
+.kanban-card-title { font-weight: 700; font-size: .9rem; color: var(--brand); margin-bottom: 3px; }
+.kanban-card-company { font-size: .8rem; color: var(--text-muted); margin-bottom: 8px; }
+.kanban-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: .82rem;
+}
+.kanban-card-amt { font-weight: 700; color: var(--text); }
+.kanban-card-foot {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--bg);
+  display: flex;
+  justify-content: space-between;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+.badge.dormant { background: #fde2e2; color: #9b1c1c; }
+.badge.converted { background: #d4f4dd; color: #1a6632; }
+.badge.qualified { background: #cfe8ff; color: #1a4d80; }
+.badge.disqualified { background: #f3f4f6; color: #6b7280; }
+
+.chart-box { position: relative; height: 270px; }
+
+/* Modals */
+.p3-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+.p3-modal-card {
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  margin-bottom: 0;
+}
+.p3-modal-wide { max-width: 760px; }
+.p3-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.p3-modal-head h2 { margin: 0; font-size: 1.15rem; }
+.p3-close {
+  background: transparent;
+  border: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.p3-form { display: flex; flex-direction: column; gap: 11px; }
+.p3-form label { display: flex; flex-direction: column; gap: 4px; font-size: .85rem; font-weight: 600; color: var(--text); }
+.p3-form input, .p3-form select, .p3-form textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: .9rem;
+  font-family: inherit;
+}
+.p3-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.p3-modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+
+.p3-detail-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  background: var(--bg);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+.p3-detail-stat-label { font-size: .74rem; text-transform: uppercase; color: var(--text-muted); }
+.p3-detail-stat-val { font-size: 1rem; font-weight: 700; color: var(--brand); }
+.p3-detail-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.p3-detail-controls select {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.p3-mini-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+.p3-mini-item {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: .83rem;
+}

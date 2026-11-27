@@ -1,5 +1,268 @@
 {% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/journey.css') }}">
+{% endblock %}
+
 {% block content %}
-<h1>Experiential Journey Tracker</h1>
-<div class="card"><p>Module skeleton. Owner: Member 3. Build your pages here.</p></div>
+<div class="j-header">
+  <div>
+    <h1>Experiential Journey Tracker</h1>
+    <p class="j-subtitle">Log data-centre tours &amp; demos, auto-bump deal maturity, and manage SLA follow-ups</p>
+  </div>
+
+  <!-- Notifications Bell -->
+  <div class="j-bell-wrap">
+    <button class="btn btn-outline j-bell-btn" id="btn-notif-bell" type="button">
+      &#128276; Notifications <span class="j-bell-badge hidden" id="notif-unread-badge">0</span>
+    </button>
+    <div class="card j-bell-popover hidden" id="notif-popover">
+      <div class="j-bell-head">
+        <strong>Notifications</strong>
+        <button class="btn btn-outline btn-sm" id="btn-read-all" type="button">Mark all read</button>
+      </div>
+      <div id="notif-list" class="j-notif-list">
+        <p class="j-subtitle">No notifications yet.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="journey-toast" class="j-toast hidden"></div>
+
+<!-- Automation Trigger Result Banner -->
+<div id="trigger-banner" class="card j-trigger-banner hidden">
+  <div class="j-trigger-head">
+    <strong>&#9889; Experiential Trigger Fired</strong>
+    <button class="j-close" id="btn-close-trigger" type="button">&times;</button>
+  </div>
+  <div id="trigger-banner-body"></div>
+</div>
+
+<!-- KPI Strip -->
+<section class="j-kpi-grid">
+  <div class="card j-kpi">
+    <span class="j-kpi-label">Total Engagements</span>
+    <strong class="j-kpi-val" id="jkpi-total">0</strong>
+    <span class="j-kpi-sub" id="jkpi-qualifying">0 qualifying</span>
+  </div>
+  <div class="card j-kpi">
+    <span class="j-kpi-label">Contacts Engaged</span>
+    <strong class="j-kpi-val" id="jkpi-contacts">0</strong>
+    <span class="j-kpi-sub" id="jkpi-attendees">0 total check-ins</span>
+  </div>
+  <div class="card j-kpi">
+    <span class="j-kpi-label">Open Follow-Up Tasks</span>
+    <strong class="j-kpi-val" id="jkpi-tasks">0</strong>
+    <span class="j-kpi-sub" id="jkpi-overdue">0 overdue</span>
+  </div>
+  <div class="card j-kpi">
+    <span class="j-kpi-label">Completed Tasks</span>
+    <strong class="j-kpi-val" id="jkpi-done">0</strong>
+    <span class="j-kpi-sub">SLA follow-ups closed</span>
+  </div>
+</section>
+
+<!-- Tabs -->
+<div class="j-tabs" role="tablist">
+  <button class="j-tab active" data-tab="log" type="button">Log Engagement &amp; Timeline</button>
+  <button class="j-tab" data-tab="tasks" type="button">Follow-Up Tasks (<span id="tasks-tab-count">0</span>)</button>
+  <button class="j-tab" data-tab="analytics" type="button">Attendance Analytics</button>
+</div>
+
+<!-- TAB 1: LOG ENGAGEMENT & TIMELINE -->
+<section id="tab-log" class="j-tab-panel active">
+  <div class="j-split">
+    <!-- Log Form -->
+    <div class="card">
+      <h2>Log Tour / Demo / Engagement</h2>
+      <form id="form-engagement" class="j-form">
+        <label>Customer Account *
+          <select id="eng-account" required></select>
+        </label>
+
+        <label>Linked Opportunity (receives automatic maturity bump)
+          <select id="eng-opp">
+            <option value="">-- Select Account First --</option>
+          </select>
+        </label>
+
+        <div class="j-form-row">
+          <label>Engagement Type *
+            <select id="eng-type" required>
+              <option value="dc_tour">Data Centre Tour</option>
+              <option value="solution_demo">Solution Demo</option>
+              <option value="executive_briefing">Executive Briefing</option>
+              <option value="event">Industry Event</option>
+              <option value="meeting">Client Meeting</option>
+              <option value="call">Discovery Call</option>
+              <option value="email">Email Follow-Up</option>
+            </select>
+          </label>
+          <label>Date &amp; Time *
+            <input type="datetime-local" id="eng-date" required>
+          </label>
+        </div>
+
+        <label>Event Title
+          <input type="text" id="eng-title" placeholder="e.g. Lusaka Tier-III Data Centre Tour">
+        </label>
+
+        <div>
+          <span class="j-field-label">Client Attendees (Buying Committee)</span>
+          <div id="eng-attendees-box" class="j-attendees-box">
+            <span class="j-subtitle">Select an account to load its contacts.</span>
+          </div>
+        </div>
+
+        <div class="j-trigger-box">
+          <label class="j-checkbox">
+            <input type="checkbox" id="eng-qualifying" checked>
+            <span>Qualifying engagement (auto-bump maturity + create SLA task + notify manager)</span>
+          </label>
+          <div class="j-form-row">
+            <label>Maturity Impact (pts)
+              <input type="number" id="eng-impact" min="0" max="60" value="25">
+            </label>
+            <label>Follow-Up SLA (hours)
+              <input type="number" id="eng-sla" min="1" max="720" value="24">
+            </label>
+          </div>
+        </div>
+
+        <label>Outcome Notes
+          <textarea id="eng-outcome" rows="2" placeholder="Key technical requirements, tour reactions, blockers..."></textarea>
+        </label>
+
+        <label>Follow-Up Actions
+          <input type="text" id="eng-followup" placeholder="e.g. Send rack sizing proposal & SLA terms">
+        </label>
+
+        <button class="btn" type="submit">Log Engagement &amp; Run Triggers</button>
+      </form>
+    </div>
+
+    <!-- Engagement Timeline -->
+    <div class="card">
+      <div class="j-panel-head">
+        <h2>Engagement History</h2>
+        <div class="j-filters">
+          <select id="filter-eng-account"><option value="">All Accounts</option></select>
+          <select id="filter-eng-type">
+            <option value="">All Types</option>
+            <option value="dc_tour">DC Tour</option>
+            <option value="solution_demo">Solution Demo</option>
+            <option value="executive_briefing">Executive Briefing</option>
+            <option value="event">Event</option>
+            <option value="meeting">Meeting</option>
+            <option value="call">Call</option>
+            <option value="email">Email</option>
+          </select>
+        </div>
+      </div>
+      <div id="eng-timeline" class="j-timeline">
+        <p class="j-subtitle">Loading engagement history...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TAB 2: FOLLOW-UP TASKS -->
+<section id="tab-tasks" class="j-tab-panel">
+  <div class="card j-toolbar">
+    <select id="filter-task-status">
+      <option value="">All Statuses</option>
+      <option value="overdue">Overdue</option>
+      <option value="open">Open</option>
+      <option value="in_progress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+    <label class="j-checkbox">
+      <input type="checkbox" id="filter-task-mine">
+      <span>Assigned to me only</span>
+    </label>
+    <button class="btn btn-sm" id="btn-new-task" type="button" style="margin-left:auto;">+ New Follow-Up Task</button>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Account / Deal</th>
+          <th>Assignee</th>
+          <th>SLA</th>
+          <th>Due</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tasks-tbody">
+        <tr><td colspan="7">Loading tasks...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- TAB 3: ATTENDANCE ANALYTICS -->
+<section id="tab-analytics" class="j-tab-panel">
+  <div class="grid">
+    <div class="card">
+      <h3>Engagements by Type</h3>
+      <div class="j-chart-box"><canvas id="chart-eng-types"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Attendees by Buying-Committee Role</h3>
+      <div class="j-chart-box"><canvas id="chart-att-roles"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Most Engaged Accounts</h3>
+    <table class="table">
+      <thead>
+        <tr><th>Account</th><th>Total Events</th><th>Qualifying Events</th><th>Contact Check-Ins</th></tr>
+      </thead>
+      <tbody id="top-accounts-tbody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- MODAL: NEW TASK -->
+<div class="j-modal hidden" id="modal-task">
+  <div class="j-modal-card card">
+    <div class="j-trigger-head">
+      <h2>New Follow-Up Task</h2>
+      <button class="j-close" data-close="modal-task" type="button">&times;</button>
+    </div>
+    <form id="form-task" class="j-form">
+      <label>Task Title *
+        <input type="text" id="task-title" placeholder="e.g. Share Colocation Power Quote" required>
+      </label>
+      <div class="j-form-row">
+        <label>Account
+          <select id="task-account"><option value="">-- Optional --</option></select>
+        </label>
+        <label>Assignee
+          <select id="task-assignee"></select>
+        </label>
+      </div>
+      <label>SLA (hours)
+        <input type="number" id="task-sla" min="1" max="720" value="48">
+      </label>
+      <label>Description
+        <textarea id="task-desc" rows="2" placeholder="Next steps..."></textarea>
+      </label>
+      <div class="j-modal-foot">
+        <button class="btn btn-outline" data-close="modal-task" type="button">Cancel</button>
+        <button class="btn" type="submit">Create Task</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/journey.js') }}"></script>
 {% endblock %}
