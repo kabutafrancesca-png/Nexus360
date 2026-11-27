@@ -2,29 +2,26 @@
 
 ## The cycle for every task
 ```
- pick task (TASKS.md) -> update main -> new branch -> code + test locally -> commit
-   -> push -> Pull Request -> review -> merge -> pull main again
+ pull main -> code + test locally -> commit -> pull again -> push main
 ```
 
 ### Step by step
 ```bash
-# 1. Start from fresh main
-git checkout main
+# 1. Always pull first — get everyone else's latest changes
 git pull origin main
 
-# 2. Create your branch (name = feature/<module>-<what>)
-git checkout -b feature/pipeline-kanban-board
+# 2. Work. Run the app often to check nothing is broken:
+python run.py
 
-# 3. Work. Run the app often:  python run.py
-# 4. Commit small and often
+# 3. Commit small and often (stay in your module folder)
 git add app/modules/pipeline app/templates/pipeline
 git commit -m "pipeline: add kanban board page"
 
-# 5. Stay up to date with others
-git pull origin main --rebase
+# 4. Pull again before pushing (someone else may have pushed while you worked)
+git pull origin main
 
-# 6. Push and open a Pull Request on GitHub
-git push -u origin feature/pipeline-kanban-board
+# 5. Push straight to main
+git push origin main
 ```
 
 ### Git flow diagram
@@ -68,13 +65,22 @@ flowchart LR
 ```
 
 ## Rules
-1. **Never push to `main`.** Only the lead merges Pull Requests.
-2. **Stay in your lane:** edit only your module's folder and templates. Shared files (`base.html`, `main.css`, `db.py`, `schema.sql`) belong to the lead.
-3. **Need a DB change?** Add `db/migrations/NNN_short_name.sql` (e.g. `002_add_lead_score.sql`), include it in your PR, and tell the lead. The lead applies it to Supabase. Don't edit tables in Supabase by hand.
-4. **Don't break main.** Before opening a PR: the app starts (`python run.py`) and your pages load.
-5. **Never commit secrets.** `.env` is ignored by git. Keys go in `.env` only.
-6. **Ask early.** Blocked for more than 20 minutes? Message the group.
-7. **Commit messages:** `module: what you did` (e.g. `contracts: add renewal dashboard`).
+1. **Everyone pushes directly to `main`** (no PRs for now — we are all testing locally first).
+   Test your pages locally before every push. If you break `main`, fix it immediately.
+2. **Pull before you push — every single time.**
+   ```bash
+   git pull origin main
+   # ... your work ...
+   git push origin main
+   ```
+3. **Stay in your lane:** edit only your module's folder and templates.
+   Shared files (`base.html`, `main.css`, `db.py`, `schema.sql`) belong to Person 1 only.
+4. **Never commit secrets.** `.env` is git-ignored. DB URLs and keys go in `.env` only.
+5. **Never commit `nexus360_local.sqlite3`** — it's git-ignored and each person keeps their own.
+6. **Need a new table or column?** Tell Person 1. They add a migration and update the SQLite schema.
+7. **App must start before you push.** Run `python run.py` and confirm your pages load.
+8. **Ask early.** Blocked for more than 20 minutes? Message the group.
+9. **Commit messages:** `module: what you did` (e.g. `contracts: add renewal dashboard`).
 
 ## Pull Request checklist (also in `.github/pull_request_template.md`)
 - Branch is up to date with `main`

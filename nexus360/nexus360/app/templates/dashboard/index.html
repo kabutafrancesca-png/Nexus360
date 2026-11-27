@@ -1,5 +1,184 @@
 {% extends "base.html" %}
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <h1>Executive Dashboard</h1>
-<div class="card"><p>Module skeleton. Owner: Member 7. Build your pages here.</p></div>
+
+<!-- ── KPI Cards ─────────────────────────────────────────────────────────── -->
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); margin-bottom:24px;">
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Open Deals</div>
+    <div style="font-size:2.2rem; font-weight:700; color:var(--brand);">{{ kpis.open_deals }}</div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Pipeline Value</div>
+    <div style="font-size:2.2rem; font-weight:700; color:var(--brand);">
+      ${{ "{:,.0f}".format(kpis.pipeline_value) }}
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Weighted Forecast</div>
+    <div style="font-size:2.2rem; font-weight:700; color:var(--cyan);">
+      ${{ "{:,.0f}".format(kpis.weighted_forecast) }}
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Win Rate</div>
+    <div style="font-size:2.2rem; font-weight:700; color:var(--brand);">{{ kpis.win_rate }}%</div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">Renewals ≤90 days</div>
+    <div style="font-size:2.2rem; font-weight:700; color:{{ 'var(--accent)' if kpis.renewals_due > 0 else 'var(--brand)' }};">
+      {{ kpis.renewals_due }}
+    </div>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <div style="font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em;">At-Risk Accounts</div>
+    <div style="font-size:2.2rem; font-weight:700; color:{{ 'var(--accent)' if kpis.at_risk_accounts > 0 else 'var(--brand)' }};">
+      {{ kpis.at_risk_accounts }}
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Charts row ────────────────────────────────────────────────────────── -->
+<div class="grid" style="grid-template-columns:1fr 1fr; margin-bottom:24px;">
+
+  <div class="card">
+    <h3 style="margin:0 0 16px;">Pipeline by Maturity</h3>
+    <canvas id="maturityChart" height="220"></canvas>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 16px;">Pipeline Funnel by Stage</h3>
+    <canvas id="funnelChart" height="220"></canvas>
+  </div>
+
+</div>
+
+<!-- ── Renewals table ─────────────────────────────────────────────────────── -->
+{% if renewals %}
+<div class="card" style="margin-bottom:24px;">
+  <h3 style="margin:0 0 14px;">⚠ Contracts Renewing Within 90 Days</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Ref</th><th>Account</th><th>Title</th>
+        <th>Expiry</th><th>Days Left</th><th>ACV (USD)</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for c in renewals %}
+      <tr>
+        <td>{{ c.contract_number }}</td>
+        <td>{{ c.company_name }}</td>
+        <td>{{ c.title }}</td>
+        <td>{{ c.expiry_date }}</td>
+        <td>
+          <span class="badge {{ 'at_risk' if c.days_left <= 30 else 'gold' if c.days_left <= 60 else 'silver' }}">
+            {{ c.days_left }}d
+          </span>
+        </td>
+        <td>${{ "{:,.0f}".format(c.annual_value or 0) }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<!-- ── At-risk accounts ───────────────────────────────────────────────────── -->
+{% if at_risk %}
+<div class="card">
+  <h3 style="margin:0 0 14px;">🔴 At-Risk &amp; Renewal-Due Accounts</h3>
+  <table class="table">
+    <thead>
+      <tr><th>Account</th><th>Vertical</th><th>Region</th><th>Status</th><th>Health</th></tr>
+    </thead>
+    <tbody>
+    {% for a in at_risk %}
+      <tr>
+        <td><strong>{{ a.company_name }}</strong></td>
+        <td>{{ a.vertical or '—' }}</td>
+        <td>{{ a.region or '—' }}</td>
+        <td><span class="badge {{ a.status }}">{{ a.status.replace('_',' ') }}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="flex:1; background:#e5e8ef; border-radius:4px; height:8px;">
+              <div style="width:{{ a.health_score }}%; background:
+                {{ 'var(--accent)' if a.health_score < 50 else 'var(--cyan)' if a.health_score < 70 else '#2ecc71' }};
+                height:8px; border-radius:4px;"></div>
+            </div>
+            <span style="font-size:.85rem; min-width:28px;">{{ a.health_score }}</span>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Maturity chart ──────────────────────────────────────────────────────────
+const maturityData = {{ maturity | tojson }};
+const maturityColors = {
+  bronze:   '#e8b96a',
+  silver:   '#a0aab4',
+  gold:     '#f5c842',
+  platinum: '#5ba4cf'
+};
+new Chart(document.getElementById('maturityChart'), {
+  type: 'doughnut',
+  data: {
+    labels: maturityData.map(r => r.maturity.charAt(0).toUpperCase() + r.maturity.slice(1)),
+    datasets: [{
+      data: maturityData.map(r => r.deals),
+      backgroundColor: maturityData.map(r => maturityColors[r.maturity] || '#ccc'),
+      borderWidth: 2
+    }]
+  },
+  options: {
+    plugins: { legend: { position: 'bottom' } },
+    cutout: '55%'
+  }
+});
+
+// ── Funnel chart (fetched from API) ─────────────────────────────────────────
+fetch('/dashboard/api/pipeline-funnel')
+  .then(r => r.json())
+  .then(res => {
+    const rows = res.data || [];
+    new Chart(document.getElementById('funnelChart'), {
+      type: 'bar',
+      data: {
+        labels: rows.map(r => r.stage.replace('_',' ')),
+        datasets: [{
+          label: 'Pipeline Value (USD)',
+          data: rows.map(r => r.total),
+          backgroundColor: '#1a2b5e',
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } }
+        }
+      }
+    });
+  });
+</script>
 {% endblock %}

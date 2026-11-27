@@ -166,7 +166,7 @@ for i, company in enumerate(company_names):
     # One active contract per account
     effective = date_iso(date.today() - timedelta(days=300))
     expiry    = date_iso(date.today() + timedelta(days=random.choice([25, 55, 85, 170, 300])))
-    run("""INSERT INTO contracts
+    run("""INSERT OR IGNORE INTO contracts
              (id, account_id, title, type, status,
               effective_date, expiry_date, annual_value, contract_number)
            VALUES (?, ?, ?, 'msa', 'active', ?, ?, ?, ?)""",
