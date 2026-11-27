@@ -32,7 +32,7 @@ def role_required(*roles):
 @bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        user = query_one("SELECT * FROM users WHERE email = %s AND is_active", (request.form["email"],))
+        user = query_one("SELECT * FROM users WHERE email = ? AND is_active", (request.form["email"],))
         if user and check_password_hash(user["password_hash"], request.form["password"]):
             session.update(user_id=str(user["id"]), role=user["role"], full_name=user["full_name"])
             return redirect(url_for("dashboard.index"))

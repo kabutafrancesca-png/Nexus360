@@ -38,6 +38,7 @@ if IS_SQLITE:
     PH = "?"          # placeholder style
 else:
     import psycopg2
+    import psycopg2.extras
     conn = psycopg2.connect(DATABASE_URL)
     PH = "%s"
 
@@ -49,7 +50,10 @@ def ph(sql: str) -> str:
 
 
 def run(sql: str, params=()):
-    cur = conn.cursor()
+    if IS_SQLITE:
+        cur = conn.cursor()
+    else:
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
     cur.execute(ph(sql), params)
     return cur
 
@@ -58,6 +62,11 @@ def fetchone(sql: str, params=()):
     cur = run(sql, params)
     row = cur.fetchone()
     return dict(row) if row else None
+
+
+def fetchall(sql: str, params=()):
+    cur = run(sql, params)
+    return [dict(r) for r in cur.fetchall()]
 
 
 def uid() -> str:
@@ -84,8 +93,9 @@ users = [
     (uid(), "exec@infratel.test",    "Exec Sponsor",             "executive"),
 ]
 for user_id, email, full_name, role in users:
-    run("""INSERT OR IGNORE INTO users (id, email, password_hash, full_name, role)
-           VALUES (?, ?, ?, ?, ?)""",
+    run("""INSERT INTO users (id, email, password_hash, full_name, role)
+           VALUES (?, ?, ?, ?, ?)
+           ON CONFLICT (email) DO NOTHING""",
         (user_id, email, pw, full_name, role))
 
 am_row = fetchone("SELECT id FROM users WHERE email = ?", ("am@infratel.test",))
@@ -97,7 +107,7 @@ verticals = [
     "Government & Public Sector", "Retail & FMCG", "Healthcare",
 ]
 for v in verticals:
-    run("INSERT OR IGNORE INTO verticals (name) VALUES (?)", (v,))
+    run("INSERT INTO verticals (name) VALUES (?) ON CONFLICT (name) DO NOTHING", (v,))
 
 products = [
     ("Colocation",                "Data Centre"),
@@ -108,10 +118,10 @@ products = [
     ("Managed Backup",            "Cloud"),
 ]
 for name, category in products:
-    run("INSERT OR IGNORE INTO products (name, category) VALUES (?, ?)", (name, category))
+    run("INSERT INTO products (name, category) VALUES (?, ?) ON CONFLICT (name) DO NOTHING", (name, category))
 
-vert_rows = conn.execute("SELECT id FROM verticals ORDER BY id").fetchall()
-vids = [r[0] for r in vert_rows]
+vert_rows = fetchall("SELECT id FROM verticals ORDER BY id")
+vids = [r["id"] for r in vert_rows]
 
 print("Seeding accounts, contacts, opportunities and contracts …")
 company_names = [
@@ -127,9 +137,12 @@ maturities = ["bronze", "silver", "gold", "platinum"]
 win_probs  = [15.0, 40.0, 70.0, 90.0]
 
 for i, company in enumerate(company_names):
+    existing = fetchone("SELECT id FROM accounts WHERE company_name = ?", (company,))
+    if existing:
+        continue
     acc_id = uid()
     contracted = random.randint(50, 900) * 1000
-    run("""INSERT OR IGNORE INTO accounts
+    run("""INSERT INTO accounts
              (id, company_name, vertical_id, tier, region,
               contracted_revenue, status, health_score, owner_id)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
@@ -155,13 +168,22 @@ for i, company in enumerate(company_names):
     amount      = random.randint(20, 500) * 1000
     weighted    = round(amount * win_prob / 100, 2)
     close_date  = date_iso(date.today() + timedelta(days=random.randint(15, 120)))
-    run("""INSERT INTO opportunities
-             (id, account_id, name, stage, maturity, maturity_score,
-              win_probability, amount, weighted_amount, expected_close, owner_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (uid(), acc_id, f"{company} - expansion",
-         random.choice(stages), maturity, random.randint(10, 90),
-         win_prob, amount, weighted, close_date, am_id))
+    if IS_SQLITE:
+        run("""INSERT INTO opportunities
+                 (id, account_id, name, stage, maturity, maturity_score,
+                  win_probability, amount, weighted_amount, expected_close, owner_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (uid(), acc_id, f"{company} - expansion",
+             random.choice(stages), maturity, random.randint(10, 90),
+             win_prob, amount, weighted, close_date, am_id))
+    else:
+        run("""INSERT INTO opportunities
+                 (id, account_id, name, stage, maturity, maturity_score,
+                  win_probability, amount, expected_close, owner_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (uid(), acc_id, f"{company} - expansion",
+             random.choice(stages), maturity, random.randint(10, 90),
+             win_prob, amount, close_date, am_id))
 
     # One active contract per account
     effective = date_iso(date.today() - timedelta(days=300))
@@ -169,7 +191,8 @@ for i, company in enumerate(company_names):
     run("""INSERT INTO contracts
              (id, account_id, title, type, status,
               effective_date, expiry_date, annual_value, contract_number)
-           VALUES (?, ?, ?, 'msa', 'active', ?, ?, ?, ?)""",
+           VALUES (?, ?, ?, 'msa', 'active', ?, ?, ?, ?)
+           ON CONFLICT (contract_number) DO NOTHING""",
         (uid(), acc_id, f"MSA - {company}",
          effective, expiry,
          random.randint(50, 900) * 1000,

@@ -32,8 +32,8 @@ def index():
 @bp.route("/accounts/<uuid:account_id>")
 @login_required
 def account_detail(account_id):
-    account = query_one("SELECT * FROM accounts WHERE id = %s", (str(account_id),))
-    contacts = query_all("SELECT * FROM contacts WHERE account_id = %s", (str(account_id),))
+    account = query_one("SELECT * FROM accounts WHERE id = ?", (str(account_id),))
+    contacts = query_all("SELECT * FROM contacts WHERE account_id = ?", (str(account_id),))
     audit("view", "account", str(account_id))
     return render_template("cims/account_detail.html", title="Account", account=account, contacts=contacts)
 
@@ -52,7 +52,7 @@ def api_create_account():
         return api_error("company_name is required")
     row = execute(
         """INSERT INTO accounts (company_name, vertical_id, tier, region)
-           VALUES (%s, %s, %s, %s) RETURNING *""",
+           VALUES (?, ?, ?, ?) RETURNING *""",
         (data["company_name"], data.get("vertical_id"), data.get("tier", "standard"), data.get("region")),
     )
     audit("create", "account", str(row["id"]), data)
