@@ -1,0 +1,9 @@
+Flask==3.0.3
+Werkzeug==3.0.3
+python-dotenv==1.0.1
+gunicorn==22.0.0
+requests==2.32.3
+
+# Postgres driver — only needed when connecting to Supabase.
+# SQLite (local dev) uses Python's built-in sqlite3; no extra install required.
+psycopg2-binary==2.9.9

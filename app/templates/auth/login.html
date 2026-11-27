@@ -1,0 +1,39 @@
+{% extends "base_public.html" %}
+{% block content %}
+<div class="login-wrap">
+
+  <img src="{{ url_for('static', filename='img/infratel-logo.png') }}"
+       alt="Infratel" class="login-logo">
+
+  <div class="card login">
+    <h2>Sign in to Nexus 360</h2>
+    <p style="margin:0 0 10px; font-size:.85rem; color:var(--text-muted);">
+      Infratel's unified sales &amp; customer platform
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}
+          <p class="error">⚠ {{ m }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <input name="email"    type="email"    placeholder="Email address"
+               value="{{ request.form.get('email','') }}" required autofocus>
+        <input name="password" type="password" placeholder="Password" required>
+        <button class="btn" type="submit" style="width:100%; padding:12px; font-size:1rem;">
+          Sign in
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <p style="font-size:.8rem; color:var(--text-muted);">
+    Nexus 360 &mdash; for authorised Infratel staff only
+  </p>
+
+</div>
+{% endblock %}

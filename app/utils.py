@@ -11,7 +11,7 @@ def audit(action, entity, entity_id=None, changes=None):
     execute(
         """INSERT INTO audit_logs (user_id, action, entity_type, entity_id, changes, ip_address)
            VALUES (?, ?, ?, ?, ?, ?)""",
-        (session.get("user_id"), action, entity, entity_id,
+        (session.get("user_id"), action, entity, str(entity_id) if entity_id else None,
          json.dumps(changes or {}), request.remote_addr),
     )
 

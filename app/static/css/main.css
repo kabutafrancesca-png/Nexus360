@@ -61,10 +61,12 @@ body.public {
 }
 
 .sidebar .brand img {
-  width: 110px;        /* controls logo width inside sidebar */
+  width: 130px;
   height: auto;
-  /* invert makes the dark navy parts white so they show on the navy sidebar */
-  filter: brightness(0) invert(1);
+  /* PNG has its own colours — display as-is on a white pill background */
+  background: #fff;
+  border-radius: 8px;
+  padding: 4px 8px;
 }
 
 /* system name below the logo */
@@ -230,7 +232,7 @@ body.public {
 }
 
 .login-logo {
-  width: 160px;
+  width: 180px;
   height: auto;
 }
 
