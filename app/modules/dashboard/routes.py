@@ -81,10 +81,8 @@ def _kpis():
 
     renewals = query_one("""
         SELECT COUNT(*) AS renewals_due
-        FROM   contracts
-        WHERE  status = 'active'
-          AND  expiry_date <= date('now','+90 days')
-          AND  expiry_date >= date('now')
+        FROM   v_contracts_expiring
+        WHERE  days_to_expiry BETWEEN 0 AND 90
     """) or {}
 
     at_risk = query_one("""
@@ -120,15 +118,12 @@ def _maturity_dist():
 
 def _renewals_due():
     return query_all("""
-        SELECT c.contract_number, c.title, a.company_name,
-               c.expiry_date, c.annual_value,
-               CAST(julianday(c.expiry_date) - julianday('now') AS INTEGER) AS days_left
-        FROM   contracts c
-        JOIN   accounts  a ON a.id = c.account_id
-        WHERE  c.status = 'active'
-          AND  c.expiry_date <= date('now','+90 days')
-          AND  c.expiry_date >= date('now')
-        ORDER  BY c.expiry_date
+        SELECT contract_number, title, company_name,
+               expiry_date, annual_value,
+               days_to_expiry AS days_left
+        FROM   v_contracts_expiring
+        WHERE  days_to_expiry BETWEEN 0 AND 90
+        ORDER  BY expiry_date
     """)
 
 

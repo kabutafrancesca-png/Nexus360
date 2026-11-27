@@ -53,6 +53,7 @@ class Person3IntegrationTests(unittest.TestCase):
             execute("DELETE FROM audit_logs WHERE changes::text LIKE ?", (f"%{self.tag}%",))
 
     def _login(self, email="admin@infratel.test", password="nexus123"):
+        self.client.get("/logout", follow_redirects=False)
         return self.client.post(
             "/login",
             data={"email": email, "password": password},

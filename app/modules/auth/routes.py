@@ -60,8 +60,8 @@ def login():
         password = request.form.get("password", "")
 
         user = query_one(
-            "SELECT * FROM users WHERE email = ? AND is_active = 1",
-            (email,)
+            "SELECT * FROM users WHERE email = ? AND is_active = ?",
+            (email, True)
         )
         if user and check_password_hash(user["password_hash"], password):
             session.clear()
@@ -105,7 +105,7 @@ def change_password():
             flash("Passwords do not match.")
         else:
             execute(
-                "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?",
+                "UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
                 (generate_password_hash(new_pw), session["user_id"])
             )
             audit("update", "user", session["user_id"], {"action": "password_changed"})
@@ -174,9 +174,9 @@ def admin_toggle_user(user_id):
         flash("User not found.")
         return redirect(url_for("auth.admin_users"))
 
-    new_state = 0 if user["is_active"] else 1
+    new_state = not bool(user["is_active"])
     execute(
-        "UPDATE users SET is_active = ?, updated_at = datetime('now') WHERE id = ?",
+        "UPDATE users SET is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (new_state, user_id)
     )
     state_label = "activated" if new_state else "deactivated"
@@ -198,7 +198,7 @@ def admin_change_role(user_id):
         return redirect(url_for("auth.admin_users"))
 
     execute(
-        "UPDATE users SET role = ?, updated_at = datetime('now') WHERE id = ?",
+        "UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (new_role, user_id)
     )
     audit("update", "user", user_id, {"role": new_role})
@@ -215,7 +215,7 @@ def admin_reset_password(user_id):
         return redirect(url_for("auth.admin_users"))
 
     execute(
-        "UPDATE users SET password_hash = ?, updated_at = datetime('now') WHERE id = ?",
+        "UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (generate_password_hash(new_pw), user_id)
     )
     audit("update", "user", user_id, {"action": "password_reset_by_admin"})
